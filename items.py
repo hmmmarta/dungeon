@@ -1,5 +1,5 @@
 class Item:
-    def __init__(self, name, power=0, rarity="rare"):
+    def __init__(self, name, power=0, rarity="common"):
         self.name = name
         self.power = power
         self.rarity = rarity

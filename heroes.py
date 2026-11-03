@@ -27,7 +27,7 @@ class Warrior(Hero):
         target.take_damage(damage)
         return damage
 
-class Mag(Character):
+class Mag(Hero):
     title = "Mag"
 
     def __init__(self, name):
