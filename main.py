@@ -1,41 +1,30 @@
-from heroes import Warrior, Mag
-from enemies import Boss
-from items import Weapon, Potion
+from battle import fight
+from heroes import Mag
+from loot import enemy_generator, loot_generator
+from items import Potion
+from utils import BATTLE_LOG
 
-CLASSES = {"1": Warrior, "2": Mag}
-
-choice = input("Choose your hero: 1 — Warrior, 2 — Mag: ")
-name = input("Hero name: ")
-hero = CLASSES.get(choice, Mag)(name)
-
-sword = Weapon("Beginner sword", 4)
-hero.inventory.add(sword)
-hero.inventory.add(Potion("Small potion", 30))
-sword.equip(hero)
-
-boss = Boss("King of Goblins", 120, 11)
+hero = Mag("Nova")
+hero.inventory.add(Potion("Small Potion", 30))
 print(hero)
-print(boss)
 
-round_no = 1
-while hero.is_alive() and boss.is_alive():
-    print(f"\n--- Round {round_no} ---")
-    if round_no % 3 == 0:
-        damage = hero.special(boss)
-        print(f"{hero.name} — special hit! -{damage}  (Boss has {boss.hp} HP)")
-    else:
-        damage = hero.hit(boss)
-        print(f"{hero.name} hits {boss.name}: -{damage}  (Boss has {boss.hp} HP)")
+enemies = enemy_generator()
+loot = loot_generator()
+defeated = 0
 
-    if boss.is_alive():
-        damage = boss.hit(hero)
-        print(f"{boss.name} hits {hero.name}: -{damage}  (hero has {hero.hp} HP)")
+for room in range(1, 4):
+    enemy = next(enemies)
+    print(f"\n=== Room {room}: {enemy} ===")
+    if not fight(hero, enemy):
+        print("The hero has died...")
+        break
+    defeated += 1
+    drop = next(loot)
+    hero.inventory.add(drop)
+    print(f"Loot: {drop}")
 
-    if hero.is_alive() and hero.hp < hero.max_hp * 0.4:
-        potion = hero.inventory.use_potion(hero)
-        if potion:
-            print(f"{hero.name} drinks «{potion.name}»: HP {hero.hp}")
-
-    round_no += 1
-
-print("\nVictory!" if hero.is_alive() else "\nGame over...")
+print(f"\nEnemies defeated: {defeated}")
+best = sorted(hero.inventory.items, key=lambda item: item.power, reverse=True)[:3]
+print("Strongest items:", [item.name for item in best])
+print("Attacks in the log:", len(BATTLE_LOG))
+print("Last entry:", BATTLE_LOG[-1])
